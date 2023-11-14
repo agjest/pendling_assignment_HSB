@@ -1,0 +1,22 @@
+---
+title: "assignment_3"
+format: html
+editor: visual
+---
+
+# Pendling
+
+**MSB 105 - Data Science\
+Gruppe 4: Hanna Sundal Bjerkreim & Elvar Solheim**
+
+```{r}
+#| label: setup
+#| echo: false
+#| output: false
+#| message: false
+library(tidyverse)
+library(tidyselect)
+library(lubridate)
+library(PxWebApiData)
+library(flextable)
+```
