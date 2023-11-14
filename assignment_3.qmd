@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-# Pendling på Haugalandet
+# Pendlemønster på Haugalandet
 
 **MSB 105 - Data Science\
 Gruppe 4: Hanna Sundal Bjerkreim & Elvar Solheim**
@@ -21,8 +21,236 @@ library(PxWebApiData)
 library(flextable)
 ```
 
-I denne oppgaven skal vi undersøke pendlemønsteret for kommunene Haugesund, Karmøy, Tysvær og Bokn.
-Det såkalte T-sambander åpnet i 2013 og bompengeinnkreving ble avviklet i 2021.
-Vi skal diskutere hvordan dette prosjektet påvirket pendlemønsteret mellom de fire kommunene.
+I denne oppgaven skal vi studere pendlemønsteret på Haugalandet i perioden 2000 t.o.m. 2022.
+Haugalandet inkluderer følgende kommuner: Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda og Etne.
+Vi skal presentere utviklingen i jobbpendling over tid for de ulike kommunene ved hjelp av plots og pendle-matriser.
 
-Dataene er hentet fra SSB sin statistikktabell 03321, "*Sysselsatte (15-74 år), etter arbeidssteds- og bostedskommune. Pendlingsstrømmer. 4. kvartal (K) 2000-2022*"
+Videre skal vi se nærmere på hvordan T-sambandet som åpnet i 2013 og avviklingen av bompengeinnkreving i 2021 påvirket pendlemønsteret mellom kommunene Haugesund, Karmøy, Tysvær og Bokn.
+
+## Datamanipulering
+
+Dataene er hentet fra SSB sin statistikktabell 03321, "*Sysselsatte (15-74 år), etter arbeidssteds- og bostedskommune. Pendlingsstrømmer. 4. kvartal (K) 2000-2022*".
+
+```{r}
+# Bosteds-kommuner
+pend_00_22_ssb_boHland <- ApiData12("https://data.ssb.no/api/v0/no/table/03321/", 
+                                    ArbstedKomm = list("*"),
+                                    Bokommuen = c("1106", "1135", "1145", "1146", "1149"
+                                    ,"1154", "1159", "1160", "4611", "4612", "1211", 
+                                    "1216"),
+                                    Tid = c(as.character(2000:2022))
+                                    )
+```
+
+```{r}
+# Arbeidssted-kommuner
+pend_00_22_ssb_arbHland <- ApiData12("https://data.ssb.no/api/v0/no/table/03321/",
+                                     ArbstedKomm = c("1106", "1135", "1145", "1146", 
+                                                     "1149","1154", "1159", "1160", 
+                                                     "4611", "4612", "1211", "1216"),
+                                     Bokommuen = list("*"),
+                                     Tid = c(as.character(2000:2022))
+                                     ) 
+```
+
+```{r}
+# Redusert versjon av bosteds-kommuner (pend_00_22_ssb_boHland)
+pend_00_22_boHland <- pend_00_22_ssb_boHland |>
+  select(
+    aar = år, bo_kom = bostedskommune, arb_kom = arbeidsstedskommune,  pendlere = value
+  )
+```
+
+```{r}
+# Redusert versjon av arbeidssted-kommuner (pend_00_22_ssb_arbHland)
+pend_00_22_arbHland <- pend_00_22_ssb_arbHland |>
+  select(
+    aar = år, arb_kom = arbeidsstedskommune, bo_kom = bostedskommune, pendlere = value
+  )
+```
+
+```{r}
+# Konventere bo_kom og arb_kom til kategorivariabler
+pend_00_22_boHland$bo_kom <- as_factor(pend_00_22_boHland$bo_kom)
+pend_00_22_boHland$arb_kom <- as_factor(pend_00_22_boHland$arb_kom)
+
+pend_00_22_arbHland$bo_kom <- as_factor(pend_00_22_arbHland$bo_kom)
+pend_00_22_arbHland$arb_kom <- as_factor(pend_00_22_arbHland$arb_kom)
+```
+
+```{r}
+# Kollapse faktornivåer i bo_kom for bostedskommuner
+pend_00_22_boHland <- pend_00_22_boHland |>
+  mutate(
+    bo_kom = fct_collapse(
+    .f = bo_kom,
+    "Haugesund" = "Haugesund",
+    "Sauda" = "Sauda",
+    "Bokn" = "Bokn",
+    "Tysvær" = "Tysvær",
+    "Karmøy" = "Karmøy",
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Etne" = c("Etne", "Etne (-2019)"),
+    "Sveio" = c("Sveio", "Sveio (-2019)")
+    )
+  )
+```
+
+```{r}
+# Kollapse faktornivåer i arb_kom for bosteds-kommuner
+pend_00_22_boHland <- pend_00_22_boHland |>
+  mutate(
+    arb_kom = fct_collapse(
+    .f = arb_kom,
+    "Haugesund" = "Haugesund",
+    "Sauda" = "Sauda",
+    "Bokn" = "Bokn",
+    "Tysvær" = "Tysvær",
+    "Karmøy" = "Karmøy",
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Etne" = c("Etne", "Etne (-2019)"),
+    "Sveio" = c("Sveio", "Sveio (-2019)"),
+    other_level = "Andre"
+    )
+  )
+```
+
+```{r}
+# Kollapse faktornivåer i bo_kom for arbeidssted-kommuner
+pend_00_22_arbHland <- pend_00_22_arbHland |>
+  mutate(
+    bo_kom = fct_collapse(
+    .f = bo_kom,
+    "Haugesund" = "Haugesund",
+    "Sauda" = "Sauda",
+    "Bokn" = "Bokn",
+    "Tysvær" = "Tysvær",
+    "Karmøy" = "Karmøy",
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Etne" = c("Etne", "Etne (-2019)"),
+    "Sveio" = c("Sveio", "Sveio (-2019)"),
+    other_level = "Andre"
+    )
+  )
+```
+
+```{r}
+# Kollapse faktornivåer i arb_kom for arbeidssted-kommuner
+pend_00_22_arbHland <- pend_00_22_arbHland |>
+  mutate(
+    arb_kom = fct_collapse(
+    .f = arb_kom,
+    "Haugesund" = "Haugesund",
+    "Sauda" = "Sauda",
+    "Bokn" = "Bokn",
+    "Tysvær" = "Tysvær",
+    "Karmøy" = "Karmøy",
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Etne" = c("Etne", "Etne (-2019)"),
+    "Sveio" = c("Sveio", "Sveio (-2019)")
+    )
+  )
+```
+
+```{r}
+# eval: false
+pend_00_22_boHland <- pend_00_22_boHland |>
+  group_by(aar, arb_kom, bo_kom) |>
+  summarise(pendlere = sum(pendlere), .groups = "drop")
+```
+
+```{r}
+# eval: false
+pend_00_22_arbHland <- pend_00_22_arbHland |>
+  group_by(aar, bo_kom, arb_kom) |>
+  summarise(pendlere = sum(pendlere), .groups = "drop")
+```
+
+```{r}
+# Join datasett for bosteds-kommuner med datasett for arbeidssted-kommuner
+pmat_long <- pend_00_22_boHland |>
+  full_join(pend_00_22_arbHland, join_by(aar, bo_kom, arb_kom, pendlere)) |>
+  ungroup()
+```
+
+```{r}
+# Endre bo_kom og arb_kom til character
+pmat_long$bo_kom <- as.character(pmat_long$bo_kom)
+pmat_long$arb_kom <- as.character(pmat_long$arb_kom)
+```
+
+```{r}
+# Ny variabel bo_percent
+```
+
+```{r}
+# Ny variabel arb_percent
+```
+
+## Pendlematriser
+
+## Spørsmål
+
+### Spørsmål vedrørende pendle/andels-matrisene for 2000
+
+1.  Hvor mange pendlet fra Haugesund til Vindafjord?
+
+2.  Hvor mange pendlet fra Bokn til Sveio?
+
+3.  Hvor stor andel av arbeidstakerene som bodde i Karmøy kommune i 2000 jobbet i Bokn kommune?
+
+4.  Hvor stor andel av arbeidstakerene som bodde i Bokn kommune i 2000 jobbet i Karmøy kommune?
+
+5.  Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Haugesund kommune?
+
+6.  Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Tysvær kommune?
+
+7.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2000 bodde i Vindafjord kommune?
+
+### Spørsmål vedrørende pendle/andels-matrisene for 2012
+
+Lag tilsvarende tre tabeller for 2012
+
+1.  Hvor mange pendlet fra Tysvær til Karmøy?
+
+2.  Hvor mange pendlet fra Karmøy til Tysvær?
+
+3.  Hvor mange pendlet fra Bokn til Karmøy?
+
+4.  Hvor mange pendlet fra Karmøy til Bokn?
+
+5.  Hvor mange pendlet fra Haugesund til Karmøy?
+
+6.  Hvor mange pendlet fra Karmøy til Haugesund?
+
+7.  Hvor stor andel av arbeidstakerene som bodde i Sveio kommune i 2012 jobbet i Tysvær kommune?
+
+8.  Hvor stor andel av arbeidstakerene som bodde i Tysvær kommune i 2012 jobbet i Karmøy kommune?
+
+9.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 20112bodde i Haugesund kommune?
+
+10. Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2012 bodde i Karmøy kommune?
+
+### Spørsmål vedrørende pendle/andels-matrisene for 2022
+
+Lag tilsvarende tre tabeller for 2022.
+
+1.  Hvor mange pendlet fra Tysvær til Karmøy?
+
+2.  Hvor mange pendlet fra Karmøy til Tysvær?
+
+3.  Hvor mange pendlet fra Bokn til Karmøy?
+
+4.  Hvor mange pendlet fra Karmøy til Bokn?
+
+5.  Hvor mange pendlet fra Haugesund til Karmøy?
+
+6.  Hvor mange pendlet fra Karmøy til Haugesund?
+
+7.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2011 bodde i Haugesund kommune?
+
+8.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2011 bodde i Karmøy kommune?
+
+## Plots
+
+## T-sambandet og avvikling av bompengeinnkreving
