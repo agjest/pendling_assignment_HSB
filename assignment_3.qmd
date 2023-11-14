@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-# Pendling
+# Pendling på Haugalandet
 
 **MSB 105 - Data Science\
 Gruppe 4: Hanna Sundal Bjerkreim & Elvar Solheim**
@@ -20,3 +20,9 @@ library(lubridate)
 library(PxWebApiData)
 library(flextable)
 ```
+
+I denne oppgaven skal vi undersøke pendlemønsteret for kommunene Haugesund, Karmøy, Tysvær og Bokn.
+Det såkalte T-sambander åpnet i 2013 og bompengeinnkreving ble avviklet i 2021.
+Vi skal diskutere hvordan dette prosjektet påvirket pendlemønsteret mellom de fire kommunene.
+
+Dataene er hentet fra SSB sin statistikktabell 03321, "*Sysselsatte (15-74 år), etter arbeidssteds- og bostedskommune. Pendlingsstrømmer. 4. kvartal (K) 2000-2022*"
