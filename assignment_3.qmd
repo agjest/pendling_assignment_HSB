@@ -181,10 +181,31 @@ pmat_long$arb_kom <- as.character(pmat_long$arb_kom)
 
 ```{r}
 # Ny variabel bo_percent
+pmat_long <- pmat_long |>
+  group_by(aar, bo_kom) |>
+  mutate(bo_percent = round((pendlere / sum(pendlere)) * 100, 1)) |>
+  ungroup()
 ```
 
 ```{r}
 # Ny variabel arb_percent
+pmat_long <- pmat_long |>
+  ungroup() |>
+  group_by(aar, arb_kom) |>
+  mutate(arb_percent = round((pendlere / sum(pendlere)) * 100, 1)) |>
+  ungroup()
+```
+
+```{r}
+pmat_long <- pmat_long |>
+  ungroup() |>
+  arrange(aar, arb_kom, bo_kom) |>
+  select(aar, bo_kom, arb_kom, pendlere, bo_percent, arb_percent)
+```
+
+```{r}
+# Clean up
+rm(pend_00_22_ssb_boHland, pend_00_22_ssb_arbHland, pend_00_22_boHland, pend_00_22_arbHland)
 ```
 
 ## Pendlematriser
