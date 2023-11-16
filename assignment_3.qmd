@@ -23,7 +23,7 @@ library(flextable)
 
 I denne oppgaven skal vi studere pendlemønsteret på Haugalandet i perioden 2000 t.o.m. 2022.
 Haugalandet inkluderer følgende kommuner: Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda og Etne.
-Vi skal presentere utviklingen i jobbpendling over tid for de ulike kommunene ved hjelp av plots og pendle-matriser.
+Vi skal presentere utviklingen i jobbpendling over tid for de ulike kommunene ved hjelp av plots og pendlematriser.
 
 Videre skal vi se nærmere på hvordan T-sambandet som åpnet i 2013 og avviklingen av bompengeinnkreving i 2021 påvirket pendlemønsteret mellom kommunene Haugesund, Karmøy, Tysvær og Bokn.
 
@@ -209,6 +209,85 @@ rm(pend_00_22_ssb_boHland, pend_00_22_ssb_arbHland, pend_00_22_boHland, pend_00_
 ```
 
 ## Pendlematriser
+
+Pendlematrise for Haugalandet for år 2000:
+
+```{r}
+ordKom <- c("bo_kom" , "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vindafjord", 
+            "Sauda", "Etne", "Andre")
+```
+
+```{r}
+# Pendlematrise for Haugalandet for år 2000
+p2000 <- pmat_long |>
+  filter(
+    aar == "2000"
+    ) |>
+  pivot_wider(
+    names_from = arb_kom, 
+    values_from = pendlere
+    ) |>
+  arrange(
+    fct(
+      bo_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename(
+    "Bo kom.\\ Arb. kom" = bo_kom
+    )
+```
+
+```{r}
+#| label: tbl-p2000
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000."
+p2000 |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+Pendlematrise for dem som *bor* på Haugalandet som viser andelen som jobber i de ulike kommunene.
+
+```{r}
+# Pendlematrise 
+p2000_2 <- pmat_long |>
+  filter(
+    aar == "2000"
+    ) |>
+  pivot_wider(
+    names_from = bo_kom, 
+    values_from = arb_percent
+    ) |>
+  arrange(
+    fct(
+      arb_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename("")
+```
+
+```{r}
+p2000_2
+```
+
+Pendlematrise for dem som *arbeider* på Haugalandet som viser andelen som bor i de ulike kommunene.
+
+```{r}
+# Pendlematrise
+```
 
 ## Spørsmål
 
