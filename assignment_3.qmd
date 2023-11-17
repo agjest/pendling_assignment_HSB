@@ -34,32 +34,43 @@ Dataene i oppgaven er hentet fra SSB sin statistikktabell 03321, "*Sysselsatte (
 Etter litt datamanipulering satt vi igjen med ett datasett på 1840 observasjoner fordelt på 6 variabler: år, bokommune, arbeidskommune, pendlere, boprosent, arbeidsprosent.
 
 ```{r}
+knr <- c("1106", "1135", "1145", "1146", "1149"
+                ,"1154", "1159", "1160", "4611", "4612", 
+                "1211", "1216")
+```
+
+```{r}
 # Bosteds-kommuner
-pend_00_22_ssb_boHland <- ApiData12("https://data.ssb.no/api/v0/no/table/03321/", 
-                                    ArbstedKomm = list("*"),
-                                    Bokommuen = c("1106", "1135", "1145", "1146", "1149"
-                                    ,"1154", "1159", "1160", "4611", "4612", "1211", 
-                                    "1216"),
-                                    Tid = c(as.character(2000:2022))
-                                    )
+pend_00_22_ssb_boHland <- ApiData12(
+  urlToData = "https://data.ssb.no/api/v0/no/table/03321/", 
+  ArbstedKomm = list('*'),
+  Bokommuen = c("1106", "1135", "1145", "1146", 
+                  "1149","1154", "1159", "1160", 
+                  "4611", "4612", "1211", "1216"),
+  Tid = as.character(2000:2022)
+  )
 ```
 
 ```{r}
 # Arbeidssted-kommuner
-pend_00_22_ssb_arbHland <- ApiData12("https://data.ssb.no/api/v0/no/table/03321/",
-                                     ArbstedKomm = c("1106", "1135", "1145", "1146", 
-                                                     "1149","1154", "1159", "1160", 
-                                                     "4611", "4612", "1211", "1216"),
-                                     Bokommuen = list("*"),
-                                     Tid = c(as.character(2000:2022))
-                                     ) 
+pend_00_22_ssb_arbHland <- ApiData12(
+  urlToData = "https://data.ssb.no/api/v0/no/table/03321/",
+  ArbstedKomm = c("1106", "1135", "1145", "1146", 
+                  "1149","1154", "1159", "1160", 
+                  "4611", "4612", "1211", "1216"),
+  Bokommuen = list('*'),
+  Tid = as.character(2000:2022)
+  ) 
 ```
 
 ```{r}
 # Redusert versjon av bosteds-kommuner (pend_00_22_ssb_boHland)
 pend_00_22_boHland <- pend_00_22_ssb_boHland |>
   select(
-    aar = år, bo_kom = bostedskommune, arb_kom = arbeidsstedskommune,  pendlere = value
+    aar = år, 
+    bo_kom = bostedskommune, 
+    arb_kom = arbeidsstedskommune,  
+    pendlere = value
   )
 ```
 
@@ -67,23 +78,48 @@ pend_00_22_boHland <- pend_00_22_ssb_boHland |>
 # Redusert versjon av arbeidssted-kommuner (pend_00_22_ssb_arbHland)
 pend_00_22_arbHland <- pend_00_22_ssb_arbHland |>
   select(
-    aar = år, arb_kom = arbeidsstedskommune, bo_kom = bostedskommune, pendlere = value
+    aar = år, 
+    arb_kom = arbeidsstedskommune, 
+    bo_kom = bostedskommune, 
+    pendlere = value
   )
 ```
 
 ```{r}
+# AG: Se under for kanskje en litt enklere løsning som er
+# mer i tidyverse sin ånd
 # Konventere bo_kom og arb_kom til kategorivariabler
-pend_00_22_boHland$bo_kom <- as_factor(pend_00_22_boHland$bo_kom)
-pend_00_22_boHland$arb_kom <- as_factor(pend_00_22_boHland$arb_kom)
-
-pend_00_22_arbHland$bo_kom <- as_factor(pend_00_22_arbHland$bo_kom)
-pend_00_22_arbHland$arb_kom <- as_factor(pend_00_22_arbHland$arb_kom)
+# pend_00_22_boHland$bo_kom <- as_factor(pend_00_22_boHland$bo_kom)
+# pend_00_22_boHland$arb_kom <- as_factor(pend_00_22_boHland$arb_kom)
+# pend_00_22_arbHland$bo_kom <- as_factor(pend_00_22_arbHland$bo_kom)
+# pend_00_22_arbHland$arb_kom <- as_factor(pend_00_22_arbHland$arb_kom)
 ```
 
 ```{r}
-# Kollapse faktornivåer i bo_kom for bostedskommuner
+pend_00_22_boHland <- pend_00_22_boHland |> 
+  mutate(
+    # as_factor() kan brukes istedenfor fct(). as_factor() litt raskere,
+    # men også litt mer risky i noen tilfeller. Her tror jeg de to
+    # er like raske og gir samme resultat
+    bo_kom = fct(bo_kom),
+    arb_kom = fct(arb_kom)
+  )
+```
+
+```{r}
+pend_00_22_arbHland <- pend_00_22_arbHland |>
+  mutate(
+    bo_kom = fct(bo_kom),
+    arb_kom = fct(arb_kom)
+  )
+```
+
+```{r}
+# AG: Foreslår kollaps av både bo_kom og arb_kom i en pipe
+# Kollapse faktornivåer for bostedskommuner
 pend_00_22_boHland <- pend_00_22_boHland |>
   mutate(
+    # Kollapse faktornivåer i bo_kom for bostedskommuner
     bo_kom = fct_collapse(
     .f = bo_kom,
     "Haugesund" = "Haugesund",
@@ -91,17 +127,14 @@ pend_00_22_boHland <- pend_00_22_boHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
     "Etne" = c("Etne", "Etne (-2019)"),
-    "Sveio" = c("Sveio", "Sveio (-2019)")
-    )
-  )
-```
-
-```{r}
-# Kollapse faktornivåer i arb_kom for bosteds-kommuner
-pend_00_22_boHland <- pend_00_22_boHland |>
-  mutate(
+    "Sveio" = c("Sveio", "Sveio (-2019)"),
+    # AG: samler alle resterende kommuner i en kategori "Andre"
+    other_level = "Andre"
+    ),
+    # Kollapse faktornivåer i arb_kom for bosteds-kommuner
     arb_kom = fct_collapse(
     .f = arb_kom,
     "Haugesund" = "Haugesund",
@@ -109,7 +142,8 @@ pend_00_22_boHland <- pend_00_22_boHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
     "Etne" = c("Etne", "Etne (-2019)"),
     "Sveio" = c("Sveio", "Sveio (-2019)"),
     other_level = "Andre"
@@ -118,9 +152,11 @@ pend_00_22_boHland <- pend_00_22_boHland |>
 ```
 
 ```{r}
-# Kollapse faktornivåer i bo_kom for arbeidssted-kommuner
+# AG: Foreslår kollaps av både bo_kom og arb_kom i en pipe
+# Kollapse faktornivåer for arbeidssted-kommuner
 pend_00_22_arbHland <- pend_00_22_arbHland |>
   mutate(
+    # Kollapse faktornivåer i bo_kom for arbeidssted-kommuner
     bo_kom = fct_collapse(
     .f = bo_kom,
     "Haugesund" = "Haugesund",
@@ -128,18 +164,12 @@ pend_00_22_arbHland <- pend_00_22_arbHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
     "Etne" = c("Etne", "Etne (-2019)"),
     "Sveio" = c("Sveio", "Sveio (-2019)"),
     other_level = "Andre"
-    )
-  )
-```
-
-```{r}
-# Kollapse faktornivåer i arb_kom for arbeidssted-kommuner
-pend_00_22_arbHland <- pend_00_22_arbHland |>
-  mutate(
+    ),
     arb_kom = fct_collapse(
     .f = arb_kom,
     "Haugesund" = "Haugesund",
@@ -147,9 +177,11 @@ pend_00_22_arbHland <- pend_00_22_arbHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
     "Etne" = c("Etne", "Etne (-2019)"),
-    "Sveio" = c("Sveio", "Sveio (-2019)")
+    "Sveio" = c("Sveio", "Sveio (-2019)"),
+    other_level = "Andre"
     )
   )
 ```
@@ -176,7 +208,6 @@ pmat_long <- pend_00_22_boHland |>
 ```
 
 ```{r}
-# Endre bo_kom og arb_kom til character
 pmat_long$bo_kom <- as.character(pmat_long$bo_kom)
 pmat_long$arb_kom <- as.character(pmat_long$arb_kom)
 ```
@@ -218,8 +249,8 @@ Vi skal presentere pendlemønster på Haugalandet ved hjelp av ulike pendlematri
 
 ```{r}
 #| echo: false
-ordKom <- c("bo_kom" , "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vindafjord", 
-            "Sauda", "Etne", "Andre")
+ordKom <- c("bo_kom" , "Haugesund", "Karmøy", "Tysvær", "Sveio", 
+            "Bokn", "Vindafjord", "Sauda", "Etne", "Andre")
 ```
 
 ```{r}
@@ -229,13 +260,16 @@ p2000 <- pmat_long |>
   filter(
     aar == "2000"
     ) |>
+  # AG: velger pendler, utelater andeler
+  select(bo_kom, arb_kom, pendlere) |> 
   pivot_wider(
     names_from = arb_kom, 
     values_from = pendlere
     ) |>
   arrange(
     fct(
-      bo_kom, levels = ordKom
+      # Må her fjerne første fra ordKom
+      bo_kom, levels = ordKom[-1]
       )
     ) |>
   select(
@@ -245,6 +279,11 @@ p2000 <- pmat_long |>
     "Bo kom.\\ Arb. kom" = bo_kom
     )
 ```
+
+SJEKKET NED HIT.
+p2000 ER NÅ IDENTISK LIK MIN. DET PLEIER Å VÆRE ET GODT TEGN.
+
+DERE SKRIVER KLAR OG FIN KODE. PROBLEMET VAR I HOVEDSAK MANGLENDE other_level = "Andre" I fct_collapse.
 
 ```{r}
 #| echo: false
