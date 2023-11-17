@@ -23,10 +23,9 @@ library(flextable)
 
 I denne oppgaven skal vi studere pendlemønsteret på Haugalandet i perioden 2000 t.o.m. 2022.
 Haugalandet inkluderer følgende kommuner: Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda og Etne.
-Vi skal presentere utviklingen i jobbpendling over tid for de ulike kommunene ved hjelp av plots.
-Vi skal også presentere noen pendlematriser.
+Vi skal se på pendlemønster i en rekke ulike pendlematriser og presentere utviklingen i jobbpendling over tid for de ulike kommunene ved hjelp av plots.
 
-Videre i oppgaven skal vi også se nærmere på hvordan T-sambandet som åpnet i 2013 og avviklingen av bompengeinnkreving i 2021 påvirket pendlemønsteret mellom kommunene Haugesund, Karmøy, Tysvær og Bokn.
+Vi skal også se nærmere på hvordan T-sambandet som åpnet i 2013 og avviklingen av bompengeinnkreving i 2021 påvirket pendlemønsteret mellom kommunene Haugesund, Karmøy, Tysvær og Bokn.
 
 ## Datamanipulering
 
@@ -34,32 +33,41 @@ Dataene i oppgaven er hentet fra SSB sin statistikktabell 03321, "*Sysselsatte (
 Etter litt datamanipulering satt vi igjen med ett datasett på 1840 observasjoner fordelt på 6 variabler: år, bokommune, arbeidskommune, pendlere, boprosent, arbeidsprosent.
 
 ```{r}
+knr <- c("1106", "1135", "1145", "1146", "1149",
+         "1154", "1159", "1160", "4611", "4612",
+         "1211", "1216")
+```
+
+```{r}
 # Bosteds-kommuner
-pend_00_22_ssb_boHland <- ApiData12("https://data.ssb.no/api/v0/no/table/03321/", 
-                                    ArbstedKomm = list("*"),
-                                    Bokommuen = c("1106", "1135", "1145", "1146", "1149"
-                                    ,"1154", "1159", "1160", "4611", "4612", "1211", 
-                                    "1216"),
-                                    Tid = c(as.character(2000:2022))
-                                    )
+pend_00_22_ssb_boHland <- ApiData12(
+  urlToData = "https://data.ssb.no/api/v0/no/table/03321/", 
+  ArbstedKomm = list('*'),
+  Bokommuen = c("1106", "1135", "1145", "1146", "1149","1154", "1159", "1160", "4611",
+                "4612", "1211", "1216"),
+  Tid = as.character(2000:2022)
+  )
 ```
 
 ```{r}
 # Arbeidssted-kommuner
-pend_00_22_ssb_arbHland <- ApiData12("https://data.ssb.no/api/v0/no/table/03321/",
-                                     ArbstedKomm = c("1106", "1135", "1145", "1146", 
-                                                     "1149","1154", "1159", "1160", 
-                                                     "4611", "4612", "1211", "1216"),
-                                     Bokommuen = list("*"),
-                                     Tid = c(as.character(2000:2022))
-                                     ) 
+pend_00_22_ssb_arbHland <- ApiData12(
+  urlToData = "https://data.ssb.no/api/v0/no/table/03321/",
+  ArbstedKomm = c("1106", "1135", "1145", "1146", "1149","1154", "1159", "1160", "4611",
+                  "4612", "1211", "1216"),
+  Bokommuen = list('*'),
+  Tid = as.character(2000:2022)
+  ) 
 ```
 
 ```{r}
 # Redusert versjon av bosteds-kommuner (pend_00_22_ssb_boHland)
 pend_00_22_boHland <- pend_00_22_ssb_boHland |>
   select(
-    aar = år, bo_kom = bostedskommune, arb_kom = arbeidsstedskommune,  pendlere = value
+    aar = år, 
+    bo_kom = bostedskommune, 
+    arb_kom = arbeidsstedskommune,  
+    pendlere = value
   )
 ```
 
@@ -67,23 +75,36 @@ pend_00_22_boHland <- pend_00_22_ssb_boHland |>
 # Redusert versjon av arbeidssted-kommuner (pend_00_22_ssb_arbHland)
 pend_00_22_arbHland <- pend_00_22_ssb_arbHland |>
   select(
-    aar = år, arb_kom = arbeidsstedskommune, bo_kom = bostedskommune, pendlere = value
+    aar = år, 
+    arb_kom = arbeidsstedskommune, 
+    bo_kom = bostedskommune, 
+    pendlere = value
   )
 ```
 
 ```{r}
 # Konventere bo_kom og arb_kom til kategorivariabler
-pend_00_22_boHland$bo_kom <- as_factor(pend_00_22_boHland$bo_kom)
-pend_00_22_boHland$arb_kom <- as_factor(pend_00_22_boHland$arb_kom)
-
-pend_00_22_arbHland$bo_kom <- as_factor(pend_00_22_arbHland$bo_kom)
-pend_00_22_arbHland$arb_kom <- as_factor(pend_00_22_arbHland$arb_kom)
+pend_00_22_boHland <- pend_00_22_boHland |> 
+  mutate(
+    bo_kom = fct(bo_kom),
+    arb_kom = fct(arb_kom)
+  )
 ```
 
 ```{r}
-# Kollapse faktornivåer i bo_kom for bostedskommuner
+# Konventere bo_kom og arb_kom til kategorivariabler
+pend_00_22_arbHland <- pend_00_22_arbHland |>
+  mutate(
+    bo_kom = fct(bo_kom),
+    arb_kom = fct(arb_kom)
+  )
+```
+
+```{r}
+# Kollapse faktornivåer for bostedskommuner
 pend_00_22_boHland <- pend_00_22_boHland |>
   mutate(
+    # Kollapse faktornivåer i bo_kom for bostedskommuner
     bo_kom = fct_collapse(
     .f = bo_kom,
     "Haugesund" = "Haugesund",
@@ -91,17 +112,13 @@ pend_00_22_boHland <- pend_00_22_boHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
     "Etne" = c("Etne", "Etne (-2019)"),
-    "Sveio" = c("Sveio", "Sveio (-2019)")
-    )
-  )
-```
-
-```{r}
-# Kollapse faktornivåer i arb_kom for bosteds-kommuner
-pend_00_22_boHland <- pend_00_22_boHland |>
-  mutate(
+    "Sveio" = c("Sveio", "Sveio (-2019)"),
+    other_level = "Andre"
+    ),
+    # Kollapse faktornivåer i arb_kom for bosteds-kommuner
     arb_kom = fct_collapse(
     .f = arb_kom,
     "Haugesund" = "Haugesund",
@@ -109,7 +126,8 @@ pend_00_22_boHland <- pend_00_22_boHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
     "Etne" = c("Etne", "Etne (-2019)"),
     "Sveio" = c("Sveio", "Sveio (-2019)"),
     other_level = "Andre"
@@ -118,9 +136,10 @@ pend_00_22_boHland <- pend_00_22_boHland |>
 ```
 
 ```{r}
-# Kollapse faktornivåer i bo_kom for arbeidssted-kommuner
+# Kollapse faktornivåer for arbeidssted-kommuner
 pend_00_22_arbHland <- pend_00_22_arbHland |>
   mutate(
+    # Kollapse faktornivåer i bo_kom for arbeidssted-kommuner
     bo_kom = fct_collapse(
     .f = bo_kom,
     "Haugesund" = "Haugesund",
@@ -128,18 +147,12 @@ pend_00_22_arbHland <- pend_00_22_arbHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
     "Etne" = c("Etne", "Etne (-2019)"),
     "Sveio" = c("Sveio", "Sveio (-2019)"),
     other_level = "Andre"
-    )
-  )
-```
-
-```{r}
-# Kollapse faktornivåer i arb_kom for arbeidssted-kommuner
-pend_00_22_arbHland <- pend_00_22_arbHland |>
-  mutate(
+    ),
     arb_kom = fct_collapse(
     .f = arb_kom,
     "Haugesund" = "Haugesund",
@@ -147,9 +160,11 @@ pend_00_22_arbHland <- pend_00_22_arbHland |>
     "Bokn" = "Bokn",
     "Tysvær" = "Tysvær",
     "Karmøy" = "Karmøy",
-    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", "Ølen (2002-2005)"),
-    "Etne" = c("Etne", "Etne (-2019)"),
-    "Sveio" = c("Sveio", "Sveio (-2019)")
+    "Vindafjord" = c("Vindafjord", "Vindafjord (1965-2005)", 
+                     "Ølen (2002-2005)"),
+     "Etne" = c("Etne", "Etne (-2019)"),
+    "Sveio" = c("Sveio", "Sveio (-2019)"),
+    other_level = "Andre"
     )
   )
 ```
@@ -176,7 +191,6 @@ pmat_long <- pend_00_22_boHland |>
 ```
 
 ```{r}
-# Endre bo_kom og arb_kom til character
 pmat_long$bo_kom <- as.character(pmat_long$bo_kom)
 pmat_long$arb_kom <- as.character(pmat_long$arb_kom)
 ```
@@ -210,16 +224,15 @@ pmat_long <- pmat_long |>
 rm(pend_00_22_ssb_boHland, pend_00_22_ssb_arbHland, pend_00_22_boHland, pend_00_22_arbHland)
 ```
 
-## Pendlematriser
+## Pendlematriser for år 2000
 
-Vi skal presentere pendlemønster på Haugalandet ved hjelp av ulike pendlematriser.
-
-@tbl-p2000 er en pendlematrise for Haugalandet for år 2000.
+Vi skal nå presentere tre ulike pendlematriser for år 2000.
+Den første pendlematrisen (@tbl-p2000) viser hvor mange personer som pendlet fra de ulike bokommunene til de ulike arbeidskommunene på Haugalandet dette året.
 
 ```{r}
 #| echo: false
-ordKom <- c("bo_kom" , "Haugesund", "Karmøy", "Tysvær", "Sveio", "Bokn", "Vindafjord", 
-            "Sauda", "Etne", "Andre")
+ordKom <- c("bo_kom" , "Haugesund", "Karmøy", "Tysvær", "Sveio", 
+            "Bokn", "Vindafjord", "Sauda", "Etne", "Andre")
 ```
 
 ```{r}
@@ -229,13 +242,16 @@ p2000 <- pmat_long |>
   filter(
     aar == "2000"
     ) |>
+  select(
+    bo_kom, arb_kom, pendlere
+    ) |>
   pivot_wider(
     names_from = arb_kom, 
     values_from = pendlere
     ) |>
   arrange(
     fct(
-      bo_kom, levels = ordKom
+      bo_kom, levels = ordKom[-1]
       )
     ) |>
   select(
@@ -264,6 +280,7 @@ p2000 |>
 ```
 
 @tbl-p2000_arb_percent er en pendlematrise for dem som *bor* på Haugalandet og viser andelen som jobber i de ulike kommunene.
+Pendlematrisen viser tall for året 2000.
 
 ```{r}
 #| echo: false
@@ -272,6 +289,9 @@ p2000_arb_percent <- pmat_long |>
   filter(
     aar == "2000"
     ) |>
+  select(
+    bo_kom, arb_kom, arb_percent
+  ) |>
   pivot_wider(
     names_from = arb_kom, 
     values_from = arb_percent
@@ -285,7 +305,7 @@ p2000_arb_percent <- pmat_long |>
     bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
     ) |>
   rename(
-    "Bo kom.\\ Arb. prosent" = bo_kom
+    "Bo kom.\\ Arb. kom" = bo_kom
     )
 ```
 
@@ -307,6 +327,7 @@ p2000_arb_percent |>
 ```
 
 @tbl-p2000_bo_percent er en pendlematrise for dem som *arbeider* på Haugalandet og viser andelen som bor i de ulike kommunene.
+Tallene i pendlematrisen er fra 2000.
 
 ```{r}
 #| echo: false
@@ -315,10 +336,13 @@ p2000_bo_percent <- pmat_long |>
   filter(
     aar == "2000"
     ) |>
+  select(
+    arb_kom, bo_kom, bo_percent
+  ) |>
   pivot_wider(
-    names_from = bo_kom, 
+    names_from = bo_kom,
     values_from = bo_percent
-    ) |>
+  ) |>
   arrange(
     fct(
       arb_kom, levels = ordKom
@@ -328,7 +352,7 @@ p2000_bo_percent <- pmat_long |>
     arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
     ) |>
   rename(
-    "Arb. kom.\\ Bo. prosent" = arb_kom
+    "Arb. kom.\\ Bo. kom" = arb_kom
     )
 ```
 
@@ -349,27 +373,41 @@ p2000_bo_percent |>
   theme_booktabs()
 ```
 
-## Spørsmål
-
 ### Spørsmål vedrørende pendle/andels-matrisene for 2000
 
-1.  Hvor mange pendlet fra Haugesund til Vindafjord?
+1.  **Hvor mange pendlet fra Haugesund til Vindafjord?**
 
-2.  Hvor mange pendlet fra Bokn til Sveio?
+    121 arbeidstakere pendlet fra Haugesund til Vindafjord i år 2000.
 
-3.  Hvor stor andel av arbeidstakerene som bodde i Karmøy kommune i 2000 jobbet i Bokn kommune?
+2.  **Hvor mange pendlet fra Bokn til Sveio?**
 
-4.  Hvor stor andel av arbeidstakerene som bodde i Bokn kommune i 2000 jobbet i Karmøy kommune?
+    I år 2000 var det ingen arbeidstakere som pendlet fra Bokn til Sveio.
 
-5.  Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Haugesund kommune?
+3.  **Hvor stor andel av arbeidstakerene som bodde i Karmøy kommune i 2000 jobbet i Bokn kommune?**
 
-6.  Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Tysvær kommune?
+    4,3% av arbeidstakerne som bodde i Karmøy kommune i 2000 jobbet i Bokn kommune.
 
-7.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2000 bodde i Vindafjord kommune?
+4.  **Hvor stor andel av arbeidstakerene som bodde i Bokn kommune i 2000 jobbet i Karmøy kommune?**
+
+    0,1% av arbeidstakerne som bodde i Bokn kommune i 2000 jobbet i Karmøy kommune.
+
+5.  **Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Haugesund kommune?**
+
+    Det var 0,7% som jobbet i Sveio kommune i 2000 som bodde i Haugesund kommune.
+
+6.  **Hvor stor andel av arbeidstakerne som jobbet i Sveio i 2000 bodde i Tysvær kommune?**
+
+    0,4% av arbeidstakerne som jobbet i Sveio i 2000 bodde i Tysvær kommune.
+
+7.  **Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2000 bodde i Vindafjord kommune?**
+
+    Det var 7,2% av arbeidstakerne som jobbet i Haugesund i 2000 som bodde i Vindafjord kommune.
+
+## Pendlematriser for år 2012
+
+Pendlematriser for år 2012.
 
 ### Spørsmål vedrørende pendle/andels-matrisene for 2012
-
-Lag tilsvarende tre tabeller for 2012
 
 1.  Hvor mange pendlet fra Tysvær til Karmøy?
 
@@ -391,9 +429,11 @@ Lag tilsvarende tre tabeller for 2012
 
 10. Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2012 bodde i Karmøy kommune?
 
-### Spørsmål vedrørende pendle/andels-matrisene for 2022
+## Pendlematriser for år 2022
 
-Lag tilsvarende tre tabeller for 2022.
+Pendlematriser for år 2022.
+
+### Spørsmål vedrørende pendle/andels-matrisene for 2022
 
 1.  Hvor mange pendlet fra Tysvær til Karmøy?
 
