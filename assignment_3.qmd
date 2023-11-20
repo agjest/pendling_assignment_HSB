@@ -118,7 +118,7 @@ pend_00_22_boHland <- pend_00_22_boHland |>
     "Sveio" = c("Sveio", "Sveio (-2019)"),
     other_level = "Andre"
     ),
-    # Kollapse faktornivåer i arb_kom for bosteds-kommuner
+    # Kollapse faktornivåer i arb_kom for bostedskommuner
     arb_kom = fct_collapse(
     .f = arb_kom,
     "Haugesund" = "Haugesund",
@@ -136,10 +136,10 @@ pend_00_22_boHland <- pend_00_22_boHland |>
 ```
 
 ```{r}
-# Kollapse faktornivåer for arbeidssted-kommuner
+# Kollapse faktornivåer for arbeidsstedskommuner
 pend_00_22_arbHland <- pend_00_22_arbHland |>
   mutate(
-    # Kollapse faktornivåer i bo_kom for arbeidssted-kommuner
+    # Kollapse faktornivåer i bo_kom for arbeidsstedskommuner
     bo_kom = fct_collapse(
     .f = bo_kom,
     "Haugesund" = "Haugesund",
@@ -153,6 +153,7 @@ pend_00_22_arbHland <- pend_00_22_arbHland |>
     "Sveio" = c("Sveio", "Sveio (-2019)"),
     other_level = "Andre"
     ),
+    # Kollapse faktornivåer i arb_kom for arbeidsstedskommuner
     arb_kom = fct_collapse(
     .f = arb_kom,
     "Haugesund" = "Haugesund",
@@ -184,7 +185,7 @@ pend_00_22_arbHland <- pend_00_22_arbHland |>
 ```
 
 ```{r}
-# Join datasett for bosteds-kommuner med datasett for arbeidssted-kommuner
+# Join datasett for bostedskommuner med datasett for arbeidsstedkommuner
 pmat_long <- pend_00_22_boHland |>
   full_join(pend_00_22_arbHland, join_by(aar, bo_kom, arb_kom, pendlere)) |>
   ungroup()
