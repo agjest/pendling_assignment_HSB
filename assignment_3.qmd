@@ -406,31 +406,333 @@ p2000_bo_percent |>
 
 ## Pendlematriser for år 2012
 
+Vi skal nå presentere tre ulike pendlematriser for år 2012.
+Den første pendlematrisen (@tbl-p2012) viser hvor mange personer som pendlet fra de ulike bokommunene til de ulike arbeidskommunene på Haugalandet dette året.
+
 Pendlematriser for år 2012.
+
+```{r}
+#| echo: false
+# Pendlematrise for Haugalandet for år 2012
+p2012 <- pmat_long |>
+  filter(
+    aar == "2012"
+    ) |>
+  select(
+    bo_kom, arb_kom, pendlere
+    ) |>
+  pivot_wider(
+    names_from = arb_kom, 
+    values_from = pendlere
+    ) |>
+  arrange(
+    fct(
+      bo_kom, levels = ordKom[-1]
+      )
+    ) |>
+  select(
+    bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename(
+    "Bo kom.\\ Arb. kom" = bo_kom
+    )
+```
+
+```{r}
+#| echo: false
+#| label: tbl-p2012
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012."
+p2012 |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+@tbl-p2012_arb_percent er en pendlematrise for dem som *bor* på Haugalandet og viser andelen som jobber i de ulike kommunene.
+Pendlematrisen viser tall for året 2012.
+
+```{r}
+#| echo: false
+# Pendlematrise for Haugalandet år 2012 - Bokommune og arbeidsprosent
+p2012_arb_percent <- pmat_long |>
+  filter(
+    aar == "2012"
+    ) |>
+  select(
+    bo_kom, arb_kom, arb_percent
+  ) |>
+  pivot_wider(
+    names_from = arb_kom, 
+    values_from = arb_percent
+    ) |>
+  arrange(
+    fct(
+      bo_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename(
+    "Bo kom.\\ Arb. kom" = bo_kom
+    )
+```
+
+```{r}
+#| echo: false
+#| label: tbl-p2012_arb_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012 - Bokommune og arbeidsprosent"
+p2012_arb_percent |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+@tbl-p2012_bo_percent er en pendlematrise for dem som *arbeider* på Haugalandet og viser andelen som bor i de ulike kommunene.
+Tallene i pendlematrisen er fra 2012.
+
+```{r}
+#| echo: false
+# Pendlematrise for Haugalandet 2012 - Arbeidskommune og boprosent
+p2012_bo_percent <- pmat_long |>
+  filter(
+    aar == "2012"
+    ) |>
+  select(
+    arb_kom, bo_kom, bo_percent
+  ) |>
+  pivot_wider(
+    names_from = bo_kom,
+    values_from = bo_percent
+  ) |>
+  arrange(
+    fct(
+      arb_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename(
+    "Arb. kom.\\ Bo. kom" = arb_kom
+    )
+```
+
+```{r}
+#| echo: false
+#| label: tbl-p2012_bo_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012 - Arbeidskommune og boprosent"
+p2012_bo_percent |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
 
 ### Spørsmål vedrørende pendle/andels-matrisene for 2012
 
 1.  Hvor mange pendlet fra Tysvær til Karmøy?
 
+    421 arbeidstakere pendlet fra Tysvær tiil Karmøy.
+
 2.  Hvor mange pendlet fra Karmøy til Tysvær?
+
+    569 arbeidstakere pendlet fra Tysvær til Karmøy.
 
 3.  Hvor mange pendlet fra Bokn til Karmøy?
 
+    11 arbeidstakere pendlet fra Bokn til Karmøy.
+
 4.  Hvor mange pendlet fra Karmøy til Bokn?
+
+    30 arbeidstakere pendlet fra Karmøy til bokn.
 
 5.  Hvor mange pendlet fra Haugesund til Karmøy?
 
+    2077 arbeidstakere pendlet fra Haugesund til Karmøy.
+
 6.  Hvor mange pendlet fra Karmøy til Haugesund?
+
+    5201 arbeidstakere pendlet fra Karmøy til Haugesund.
 
 7.  Hvor stor andel av arbeidstakerene som bodde i Sveio kommune i 2012 jobbet i Tysvær kommune?
 
+    3% av arbeidstakerne som bodde i Sveio jobbet i Tysvær.
+
 8.  Hvor stor andel av arbeidstakerene som bodde i Tysvær kommune i 2012 jobbet i Karmøy kommune?
 
-9.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 20112bodde i Haugesund kommune?
+    2,8% av arbeidstakerne i Tysvær jobbet i Karmøy.
+
+9.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2012 bodde i Haugesund kommune?
+
+    11,4% av arbeidstakerne som jobbet i Karmøy bodde i Haugesund.
 
 10. Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2012 bodde i Karmøy kommune?
 
+    25,6% av arbeidstakerne som jobbet i Haugesund bodde i Karmøy.
+
 ## Pendlematriser for år 2022
+
+Vi skal nå presentere tre ulike pendlematriser for år 2022.
+Den første pendlematrisen (@tbl-p2022) viser hvor mange personer som pendlet fra de ulike bokommunene til de ulike arbeidskommunene på Haugalandet dette året.
+
+```{r}
+#| echo: false
+# Pendlematrise for Haugalandet for år 2022
+p2022 <- pmat_long |>
+  filter(
+    aar == "2022"
+    ) |>
+  select(
+    bo_kom, arb_kom, pendlere
+    ) |>
+  pivot_wider(
+    names_from = arb_kom, 
+    values_from = pendlere
+    ) |>
+  arrange(
+    fct(
+      bo_kom, levels = ordKom[-1]
+      )
+    ) |>
+  select(
+    bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename(
+    "Bo kom.\\ Arb. kom" = bo_kom
+    )
+```
+
+```{r}
+#| echo: false
+#| label: tbl-p2022
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022."
+p2022 |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+@tbl-p2022_arb_percent er en pendlematrise for dem som *bor* på Haugalandet og viser andelen som jobber i de ulike kommunene.
+Pendlematrisen viser tall for året 2022.
+
+```{r}
+#| echo: false
+# Pendlematrise for Haugalandet år 2022 - Bokommune og arbeidsprosent
+p2022_arb_percent <- pmat_long |>
+  filter(
+    aar == "2022"
+    ) |>
+  select(
+    bo_kom, arb_kom, arb_percent
+  ) |>
+  pivot_wider(
+    names_from = arb_kom, 
+    values_from = arb_percent
+    ) |>
+  arrange(
+    fct(
+      bo_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename(
+    "Bo kom.\\ Arb. kom" = bo_kom
+    )
+```
+
+```{r}
+#| echo: false
+#| label: tbl-p2022_arb_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022 - Bokommune og arbeidsprosent"
+p2022_arb_percent |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+@tbl-p2022_bo_percent er en pendlematrise for dem som *arbeider* på Haugalandet og viser andelen som bor i de ulike kommunene.
+Tallene i pendlematrisen er fra 2022.
+
+```{r}
+#| echo: false
+# Pendlematrise for Haugalandet 2022 - Arbeidskommune og boprosent
+p2022_bo_percent <- pmat_long |>
+  filter(
+    aar == "2022"
+    ) |>
+  select(
+    arb_kom, bo_kom, bo_percent
+  ) |>
+  pivot_wider(
+    names_from = bo_kom,
+    values_from = bo_percent
+  ) |>
+  arrange(
+    fct(
+      arb_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    ) |>
+  rename(
+    "Arb. kom.\\ Bo. kom" = arb_kom
+    )
+```
+
+```{r}
+#| echo: false
+#| label: tbl-p2022_bo_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022 - Arbeidskommune og boprosent"
+p2022_bo_percent |> 
+  flextable() |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
 
 Pendlematriser for år 2022.
 
@@ -438,20 +740,328 @@ Pendlematriser for år 2022.
 
 1.  Hvor mange pendlet fra Tysvær til Karmøy?
 
+    657 arbeidstakere pendlet fra Tysvær til Karmøy.
+
 2.  Hvor mange pendlet fra Karmøy til Tysvær?
+
+    769 arbeidstakere pendlet fra Karmøy til Tysvær.
 
 3.  Hvor mange pendlet fra Bokn til Karmøy?
 
+    45 arbeidstakere pendlet fra Bokn til Karmøy.
+
 4.  Hvor mange pendlet fra Karmøy til Bokn?
+
+    24 arbeidstakere pendlet fra Karmøy til Bokn.
 
 5.  Hvor mange pendlet fra Haugesund til Karmøy?
 
+    2541 pendlet fra Haugesund til Karmøy.
+
 6.  Hvor mange pendlet fra Karmøy til Haugesund?
 
-7.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2011 bodde i Haugesund kommune?
+    5190 pendlet fra Karmøy til Haugesund.
 
-8.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2011 bodde i Karmøy kommune?
+7.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2022 bodde i Haugesund kommune?
+
+    13,3% av arbeidstakerne som jobbet i Karmøy i 2022 bodde i Haugesund.
+
+8.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy kommune?
+
+    24,8% av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy.
 
 ## Plots
 
+Vi skal her lage plots som viser utviklingen for dem som bor i kommunene Haugesund, Karmøy, Tysvær og Bokn.
+Vi har laget to plot for hver av kommunene et med og et uten intern-pendling.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Haugesund") |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+      
+```
+
+Figur 1: Andel av de som jobber i Haugesund som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Haugesund" & !bo_kom %in% c("Haugesund")) |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom", "Haugesund")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom", "Haugesund")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+```
+
+Figur 2: Andel av de som jobber i Haugesund som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Karmøy") |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+```
+
+Figur 3: Andel av de som jobber i Karmøy som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Karmøy" & !bo_kom %in% c("Karmøy")) |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom", "Karmøy")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom", "Karmøy")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+```
+
+Figur 4: Andel av de som jobber i Karmøy som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Tysvær") |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+```
+
+Figur 5: Andel av de som jobber i Tysvær som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Tysvær" & !bo_kom %in% c("Tysvær")) |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom", "Tysvær")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom", "Tysvær")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+```
+
+Figur 6: Andel av de som jobber i Tysvær som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Bokn") |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+```
+
+Figur 7: Andel av de som jobber i Bokn som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
+```{r}
+pmat_long |>
+  filter(arb_kom == "Bokn" & !bo_kom %in% c("Bokn")) |>
+  mutate(
+    år = ymd(str_c(aar, "12", "31")),
+    `Bo andel` = arb_percent,
+    `Bo kom` = fct(bo_kom, levels = ordKom [!ordKom %in% c("bo_kom", "Bokn")])
+  ) |>
+  ggplot(aes(x = år,
+            y = `Bo andel`,
+            color = `Bo kom`, 
+            linetype = `Bo kom`, 
+            group = `Bo kom`)
+         ) + 
+  geom_line(linewidth = .8) + 
+  scale_fill_discrete(ordKom[!ordKom %in% c("bo_kom", "Bokn")]) +
+  guides(
+    colour = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    ), 
+    linetype = guide_legend(
+      title = "Bo andel",
+      title.position = "top"
+    )
+  ) + 
+  theme(
+    legend.key.size = unit(2, "line"),
+    legend.position = "bottom"
+  )
+```
+
+Figur 8: Andel av de som jobber i Bokn som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
+Andel av total arbeidsstyrke vises på vertikal akse.
+
 ## T-sambandet og avvikling av bompengeinnkreving
+
+I og med at T-sambandet ble åpnet 2013, ser vi nærmere på utviklingen fra 2012 til 2022 og om det er noe spesielt som skjer når forbindelsen åpnet og når bompengeinnkrevningen ble avviklet.
+
+Ser man på matrisene og plottene ovenfor er det noen tydelig mønstre i pendlingen.
+Det ser ut som om pendlingen har økt i mellom Karmøy, Bokn og Tysvær etter T-forbindelsen kom.
+Dette er de kommunene det tok lengst tid å pendle mellom før 2013, og man kan derfor tenke seg at det her finnes en sammenheng.
+
+Selv om pendling både til og fra Haugesund øker til noen av kommunene og reduseres til andre, så ser det ikke ut som om det er på grunn av hverken T-forbindelsen eller bompenger.
