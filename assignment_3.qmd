@@ -409,8 +409,6 @@ p2000_bo_percent |>
 Vi skal nå presentere tre ulike pendlematriser for år 2012.
 Den første pendlematrisen (@tbl-p2012) viser hvor mange personer som pendlet fra de ulike bokommunene til de ulike arbeidskommunene på Haugalandet dette året.
 
-Pendlematriser for år 2012.
-
 ```{r}
 #| echo: false
 # Pendlematrise for Haugalandet for år 2012
@@ -551,43 +549,43 @@ p2012_bo_percent |>
 
 ### Spørsmål vedrørende pendle/andels-matrisene for 2012
 
-1.  Hvor mange pendlet fra Tysvær til Karmøy?
+1.  **Hvor mange pendlet fra Tysvær til Karmøy?**
 
     421 arbeidstakere pendlet fra Tysvær tiil Karmøy.
 
-2.  Hvor mange pendlet fra Karmøy til Tysvær?
+2.  **Hvor mange pendlet fra Karmøy til Tysvær?**
 
     569 arbeidstakere pendlet fra Tysvær til Karmøy.
 
-3.  Hvor mange pendlet fra Bokn til Karmøy?
+3.  **Hvor mange pendlet fra Bokn til Karmøy?**
 
     11 arbeidstakere pendlet fra Bokn til Karmøy.
 
-4.  Hvor mange pendlet fra Karmøy til Bokn?
+4.  **Hvor mange pendlet fra Karmøy til Bokn?**
 
     30 arbeidstakere pendlet fra Karmøy til bokn.
 
-5.  Hvor mange pendlet fra Haugesund til Karmøy?
+5.  **Hvor mange pendlet fra Haugesund til Karmøy?**
 
     2077 arbeidstakere pendlet fra Haugesund til Karmøy.
 
-6.  Hvor mange pendlet fra Karmøy til Haugesund?
+6.  **Hvor mange pendlet fra Karmøy til Haugesund?**
 
     5201 arbeidstakere pendlet fra Karmøy til Haugesund.
 
-7.  Hvor stor andel av arbeidstakerene som bodde i Sveio kommune i 2012 jobbet i Tysvær kommune?
+7.  **Hvor stor andel av arbeidstakerene som bodde i Sveio kommune i 2012 jobbet i Tysvær kommune?**
 
     3% av arbeidstakerne som bodde i Sveio jobbet i Tysvær.
 
-8.  Hvor stor andel av arbeidstakerene som bodde i Tysvær kommune i 2012 jobbet i Karmøy kommune?
+8.  **Hvor stor andel av arbeidstakerene som bodde i Tysvær kommune i 2012 jobbet i Karmøy kommune?**
 
     2,8% av arbeidstakerne i Tysvær jobbet i Karmøy.
 
-9.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2012 bodde i Haugesund kommune?
+9.  **Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2012 bodde i Haugesund kommune?**
 
     11,4% av arbeidstakerne som jobbet i Karmøy bodde i Haugesund.
 
-10. Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2012 bodde i Karmøy kommune?
+10. **Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2012 bodde i Karmøy kommune?**
 
     25,6% av arbeidstakerne som jobbet i Haugesund bodde i Karmøy.
 
@@ -734,39 +732,37 @@ p2022_bo_percent |>
   theme_booktabs()
 ```
 
-Pendlematriser for år 2022.
-
 ### Spørsmål vedrørende pendle/andels-matrisene for 2022
 
-1.  Hvor mange pendlet fra Tysvær til Karmøy?
+1.  **Hvor mange pendlet fra Tysvær til Karmøy?**
 
     657 arbeidstakere pendlet fra Tysvær til Karmøy.
 
-2.  Hvor mange pendlet fra Karmøy til Tysvær?
+2.  **Hvor mange pendlet fra Karmøy til Tysvær?**
 
     769 arbeidstakere pendlet fra Karmøy til Tysvær.
 
-3.  Hvor mange pendlet fra Bokn til Karmøy?
+3.  **Hvor mange pendlet fra Bokn til Karmøy?**
 
     45 arbeidstakere pendlet fra Bokn til Karmøy.
 
-4.  Hvor mange pendlet fra Karmøy til Bokn?
+4.  **Hvor mange pendlet fra Karmøy til Bokn?**
 
     24 arbeidstakere pendlet fra Karmøy til Bokn.
 
-5.  Hvor mange pendlet fra Haugesund til Karmøy?
+5.  **Hvor mange pendlet fra Haugesund til Karmøy?**
 
     2541 pendlet fra Haugesund til Karmøy.
 
-6.  Hvor mange pendlet fra Karmøy til Haugesund?
+6.  **Hvor mange pendlet fra Karmøy til Haugesund?**
 
     5190 pendlet fra Karmøy til Haugesund.
 
-7.  Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2022 bodde i Haugesund kommune?
+7.  **Hvor stor andel av arbeidstakerne som jobbet i Karmøy i 2022 bodde i Haugesund kommune?**
 
     13,3% av arbeidstakerne som jobbet i Karmøy i 2022 bodde i Haugesund.
 
-8.  Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy kommune?
+8.  **Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy kommune?**
 
     24,8% av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy.
 
@@ -776,6 +772,9 @@ Vi skal her lage plots som viser utviklingen for dem som bor i kommunene Haugesu
 Vi har laget to plot for hver av kommunene et med og et uten intern-pendling.
 
 ```{r}
+#| echo: false
+#| label: fig-plot1
+#| fig-cap: "Andel av de som jobber i Haugesund som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Haugesund") |>
   mutate(
@@ -808,10 +807,10 @@ pmat_long |>
       
 ```
 
-Figur 1: Andel av de som jobber i Haugesund som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
-
 ```{r}
+#| echo: false
+#| label: fig-plot2
+#| fig-cap: "Andel av de som jobber i Haugesund som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Haugesund" & !bo_kom %in% c("Haugesund")) |>
   mutate(
@@ -843,10 +842,10 @@ pmat_long |>
   )
 ```
 
-Figur 2: Andel av de som jobber i Haugesund som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
-
 ```{r}
+#| echo: false
+#| label: fig-plot3
+#| fig-cap: "Andel av de som jobber i Karmøy som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Karmøy") |>
   mutate(
@@ -878,10 +877,10 @@ pmat_long |>
   )
 ```
 
-Figur 3: Andel av de som jobber i Karmøy som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
-
 ```{r}
+#| echo: false
+#| label: fig-plot4
+#| fig-cap: "Andel av de som jobber i Karmøy som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Karmøy" & !bo_kom %in% c("Karmøy")) |>
   mutate(
@@ -913,10 +912,10 @@ pmat_long |>
   )
 ```
 
-Figur 4: Andel av de som jobber i Karmøy som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
-
 ```{r}
+#| echo: false
+#| label: fig-plot5
+#| fig-cap: "Andel av de som jobber i Tysvær som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Tysvær") |>
   mutate(
@@ -948,10 +947,10 @@ pmat_long |>
   )
 ```
 
-Figur 5: Andel av de som jobber i Tysvær som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
-
 ```{r}
+#| echo: false
+#| label: fig-plot6
+#| fig-cap: "Andel av de som jobber i Tysvær som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Tysvær" & !bo_kom %in% c("Tysvær")) |>
   mutate(
@@ -983,10 +982,10 @@ pmat_long |>
   )
 ```
 
-Figur 6: Andel av de som jobber i Tysvær som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
-
 ```{r}
+#| echo: false
+#| label: fig-plot7
+#| fig-cap: "Andel av de som jobber i Bokn som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Bokn") |>
   mutate(
@@ -1018,10 +1017,10 @@ pmat_long |>
   )
 ```
 
-Figur 7: Andel av de som jobber i Bokn som bor i de ulike kommunene på Haugalandet og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
-
 ```{r}
+#| echo: false
+#| label: fig-plot8
+#| fig-cap: "Andel av de som jobber i Bokn som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022. Andel av total arbeidsstyrke vises på vertikal akse."
 pmat_long |>
   filter(arb_kom == "Bokn" & !bo_kom %in% c("Bokn")) |>
   mutate(
@@ -1052,9 +1051,6 @@ pmat_long |>
     legend.position = "bottom"
   )
 ```
-
-Figur 8: Andel av de som jobber i Bokn som bor i de ulike kommunene på Haugalandet, men untatt intern-pendling, og utviklingen fra 2000 - 2022.
-Andel av total arbeidsstyrke vises på vertikal akse.
 
 ## T-sambandet og avvikling av bompengeinnkreving
 
