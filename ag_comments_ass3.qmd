@@ -1,0 +1,14 @@
+---
+title: "ag comments ass. 3"
+format: html
+editor: visual
+---
+
+-   Fjernet round() funksjonen fra beregningen av bo_percent og arb_percent.
+    Bedre å sette antall desimaler (digits) nå vi lager tabeller vha.
+    flextable.
+    Da kan vi for hver tabell bestemme hvor mange desimaler vi trenger.
+
+-   Se genereringen av p2000_arb_percent tabellen for hvordan colformat_double(digits = 3, suffix = "%") brukes for å angi at vi i denne tabellen øsnker 3 desimaler og vil ha et % tegn for å angi at det er prosenter vi rapporterer.
+
+-   
