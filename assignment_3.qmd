@@ -200,7 +200,10 @@ pmat_long$arb_kom <- as.character(pmat_long$arb_kom)
 # Ny variabel bo_percent
 pmat_long <- pmat_long |>
   group_by(aar, bo_kom) |>
-  mutate(bo_percent = round((pendlere / sum(pendlere)) * 100, 1)) |>
+    # ag_comment: angrer på denne. Lurere å angi antall desimaler i
+  # flecxtable
+  #mutate(bo_percent = round((pendlere / sum(pendlere)) * 100, 1)) |>
+  mutate(bo_percent = pendlere / sum(pendlere) * 100) |>
   ungroup()
 ```
 
@@ -209,7 +212,10 @@ pmat_long <- pmat_long |>
 pmat_long <- pmat_long |>
   ungroup() |>
   group_by(aar, arb_kom) |>
-  mutate(arb_percent = round((pendlere / sum(pendlere)) * 100, 1)) |>
+  # ag_comment: angrer på denne. Lurere å angi antall desimaler i
+  # flecxtable
+  #mutate(arb_percent = round((pendlere / sum(pendlere)) * 100, 1)) |>
+  mutate(arb_percent = pendlere / sum(pendlere) * 100) |>
   ungroup()
 ```
 
@@ -229,6 +235,22 @@ rm(pend_00_22_ssb_boHland, pend_00_22_ssb_arbHland, pend_00_22_boHland, pend_00_
 
 Vi skal nå presentere tre ulike pendlematriser for år 2000.
 Den første pendlematrisen (@tbl-p2000) viser hvor mange personer som pendlet fra de ulike bokommunene til de ulike arbeidskommunene på Haugalandet dette året.
+
+```{r}
+# Et godt tips er å sette globale opsjoner for flextable før vi begynner å
+# generere tabeller. Dette medfører mindre skriving og sikrer at vi får
+# konsistente tabeller
+set_flextable_defaults(
+  big.mark = " ",
+  decimal.mark = ",",
+  padding.bottom = 2,
+  padding.top = 2,
+  padding.left = 2,
+  padding.right = 2,
+  line_spacing = 1,
+  theme_fun = "theme_booktabs"
+)
+```
 
 ```{r}
 #| echo: false
@@ -267,35 +289,50 @@ p2000 <- pmat_long |>
 #| echo: false
 #| label: tbl-p2000
 #| tbl-cap: "Pendlematrise for Haugalandet år 2000."
+# dropper noe formatering som er satt i default
 p2000 |> 
   flextable() |> 
   # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
   fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
-  line_spacing(space = 0,
-              part = "body"
-              ) %>% 
   hrule(rule = "exact")  %>% 
-  height_all(height = 5, part = "all", unit = "mm") |> 
-  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
-  theme_booktabs()
+  height_all(height = 5, part = "all", unit = "mm")
 ```
 
 @tbl-p2000_arb_percent er en pendlematrise for dem som *bor* på Haugalandet og viser andelen som jobber i de ulike kommunene.
 Pendlematrisen viser tall for året 2000.
 
+### ag comment
+
+Her tror jeg dere har byttet om på noen av størrelsene (svært for gjort å bli forvirret her).
+Hvis en ser i pendletabellen og summerer rekken for Haugesund (dvs. arbeidstakere som BOR i Haugesund) får en 14569.
+Hvis en summerer kolonnen for Haugesund (dem som JOBBER i Haugesund får en 17526).
+
+Andelen som BOR i Haugesund og JOBBER i Haugesund vil være 10157/14569 = 69,72%.
+Andelen av dem som BOR i Haugesund som JOBBER i Karmøy vil være 1664/14569 = 11,42% osv..
+
+Andelen av dem som JOBBER i Haugesund som BOR i Haugesund vil være 10157/17526 = 57,95%.
+Andelen av dem som JOBBER i Haugesund som bor i Karmøy vil være 4081/17526 = 23,29% osv..
+
 ```{r}
-#| echo: false
+#| label: tbl-p2000_arb_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000 - Bokommune og arbeidsprosent. Bare rekker har en klar tolkning."
 # Pendlematrise for Haugalandet år 2000 - Bokommune og arbeidsprosent
-p2000_arb_percent <- pmat_long |>
+# ag_comment: Foreslår å generer tabellene «on-the-fly» så blir det
+# ikke så mange objekter
+pmat_long |>
   filter(
     aar == "2000"
     ) |>
   select(
-    bo_kom, arb_kom, arb_percent
+    # bo_kom, arb_kom, arb_percent
+    # ag_comment: endret til bo_percent
+    bo_kom, arb_kom, bo_percent
   ) |>
   pivot_wider(
     names_from = arb_kom, 
-    values_from = arb_percent
+    #values_from = arb_percent
+    # endret til bo_percent
+    values_from = bo_percent
     ) |>
   arrange(
     fct(
@@ -303,17 +340,27 @@ p2000_arb_percent <- pmat_long |>
       )
     ) |>
   select(
-    bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    #bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    # ag_comment: all_of() sparer arbeid
+    all_of(ordKom)
     ) |>
   rename(
     "Bo kom.\\ Arb. kom" = bo_kom
-    )
+    ) |> 
+    flextable() |> 
+  # ag_comment: Forelår å bruke colformat_double() for å angi ønsket antall
+  # desimaler og suffix
+  colformat_double(digits = 2, suffix = "%") |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm")
 ```
 
 ```{r}
+#| eval: false
 #| echo: false
-#| label: tbl-p2000_arb_percent
-#| tbl-cap: "Pendlematrise for Haugalandet år 2000 - Bokommune og arbeidsprosent"
+# Dette er flyttet opp i tabellen ovenfor
 p2000_arb_percent |> 
   flextable() |> 
   # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
@@ -331,36 +378,52 @@ p2000_arb_percent |>
 Tallene i pendlematrisen er fra 2000.
 
 ```{r}
-#| echo: false
+#| label: tbl-p2000_bo_percent
+#| tbl-cap: "Pendlematrise for Haugalandet år 2000 - Arbeidskommune og boprosent"
 # Pendlematrise for Haugalandet 2000 - Arbeidskommune og boprosent
-p2000_bo_percent <- pmat_long |>
+# endrer første element i ordKom til arb_kom. Bare rekker har en klar tolkning.
+
+pmat_long |>
   filter(
     aar == "2000"
     ) |>
   select(
+    #arb_kom, bo_kom, bo_percent
+    # ag_comment: endret til arb_percent
     arb_kom, bo_kom, bo_percent
   ) |>
   pivot_wider(
-    names_from = bo_kom,
+    # ag_comment: endret fra bo_kom
+    names_from = arb_kom,
     values_from = bo_percent
   ) |>
   arrange(
     fct(
-      arb_kom, levels = ordKom
+      # ag_comment: endret fra arb_kom
+      bo_kom, levels = ordKom[-1]
       )
     ) |>
   select(
-    arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    #arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    all_of(ordKom)
     ) |>
   rename(
-    "Arb. kom.\\ Bo. kom" = arb_kom
-    )
+    "Arb. kom.\\ Bo. kom" = bo_kom
+    ) |> 
+  flextable() |> 
+  colformat_double(digits = 2, suffix = "%") |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") 
 ```
 
 ```{r}
+#| eval: false
 #| echo: false
-#| label: tbl-p2000_bo_percent
-#| tbl-cap: "Pendlematrise for Haugalandet år 2000 - Arbeidskommune og boprosent"
+# label: tbl-p2000_bo_percent
+# tbl-cap: "Pendlematrise for Haugalandet år 2000 - Arbeidskommune og boprosent"
+# Flyttet opp til chunk ovenfor
 p2000_bo_percent |> 
   flextable() |> 
   # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
@@ -386,7 +449,11 @@ p2000_bo_percent |>
 
 3.  **Hvor stor andel av arbeidstakerene som bodde i Karmøy kommune i 2000 jobbet i Bokn kommune?**
 
+    ag_comment: 14/(4,081 + 10,592 + 351 + 20 + 14 + 56 + 3 + 6 + 2,158) = 14/17,281 = 0,081%
+
     4,3% av arbeidstakerne som bodde i Karmøy kommune i 2000 jobbet i Bokn kommune.
+    
+ag_commment: Hvis dere sjekker i de oppdaterte tabellene kan svarene lese rett ut av disse    
 
 4.  **Hvor stor andel av arbeidstakerene som bodde i Bokn kommune i 2000 jobbet i Karmøy kommune?**
 
@@ -589,6 +656,103 @@ p2012_bo_percent |>
 
     25,6% av arbeidstakerne som jobbet i Haugesund bodde i Karmøy.
 
+### ag_comment: Rette tabeller for 2012
+
+Pendlematrise OK.
+
+```{r}
+#| label: tbl-p2012_arb_percent_ag
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012 - Bokommune og arbeidsprosent. Bare rekker har en klar tolkning. ag versjon"
+# Pendlematrise for Haugalandet år 2012 - Bokommune og arbeidsprosent
+# ag_comment: Foreslår å generer tabellene «on-the-fly» så blir det
+# ikke så mange objekter
+pmat_long |>
+  filter(
+    aar == "2012"
+    ) |>
+  select(
+    # bo_kom, arb_kom, arb_percent
+    # ag_comment: endret til bo_percent
+    bo_kom, arb_kom, bo_percent
+  ) |>
+  pivot_wider(
+    names_from = arb_kom, 
+    #values_from = arb_percent
+    # endret til bo_percent
+    values_from = bo_percent
+    ) |>
+  arrange(
+    fct(
+      bo_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    #bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    # ag_comment: all_of() sparer arbeid
+    all_of(ordKom)
+    ) |>
+  rename(
+    "Bo kom.\\ Arb. kom" = bo_kom
+    ) |> 
+    flextable() |> 
+  # ag_comment: Forelår å bruke colformat_double() for å angi ønsket antall
+  # desimaler og suffix
+  colformat_double(digits = 2, suffix = "%") |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm")
+```
+
+@tbl-p2012_arb_percent_ag er en pendlematrise for dem som *bor* på Haugalandet og viser andelen som arbeider i de ulike kommunene. Tallene i pendlematrisen er fra 2012.
+
+```{r}
+#| label: tbl-p2012_bo_percent_ag
+#| tbl-cap: "Pendlematrise for Haugalandet år 2012 - Arbeidskommune og boprosent"
+# Pendlematrise for Haugalandet 2012 - Arbeidskommune og boprosent
+pmat_long |>
+  filter(
+    aar == "2012"
+    ) |>
+  select(
+    # ag_comment: endret til arb_percent
+    arb_kom, bo_kom, arb_percent
+  ) |>
+  pivot_wider(
+    names_from = bo_kom,
+    # ag_comment: endret til arb_percent
+    values_from = arb_percent
+  ) |>
+  arrange(
+    fct(
+      arb_kom, levels = c("arb_kom", ordKom[-1])
+      )
+    ) |>
+  select(
+    #arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    all_of(c("arb_kom", ordKom[-1]))
+    ) |>
+  rename(
+    "Arb. kom.\\ Bo. kom" = arb_kom
+    ) |> 
+    flextable() |> 
+  colformat_double(digits = 2, suffix = "%") |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+
+
+@tbl-p2012_bo_percent_ag er en pendlematrise for dem som *arbeider* på Haugalandet og viser andelen som bor i de ulike kommunene.
+Tallene i pendlematrisen er fra 2012.
+
 ## Pendlematriser for år 2022
 
 Vi skal nå presentere tre ulike pendlematriser for år 2022.
@@ -765,6 +929,105 @@ p2022_bo_percent |>
 8.  **Hvor stor andel av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy kommune?**
 
     24,8% av arbeidstakerne som jobbet i Haugesund i 2022 bodde i Karmøy.
+    
+### ag_comment: Rette tabeller for 2022
+
+Pendlematrise OK.
+
+```{r}
+#| label: tbl-p2022_arb_percent_ag
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022 - Bokommune og arbeidsprosent. Bare rekker har en klar tolkning. ag versjon"
+# Pendlematrise for Haugalandet år 2022 - Bokommune og arbeidsprosent
+# ag_comment: Foreslår å generer tabellene «on-the-fly» så blir det
+# ikke så mange objekter
+pmat_long |>
+  filter(
+    aar == "2022"
+    ) |>
+  select(
+    # bo_kom, arb_kom, arb_percent
+    # ag_comment: endret til bo_percent
+    bo_kom, arb_kom, bo_percent
+  ) |>
+  pivot_wider(
+    names_from = arb_kom, 
+    #values_from = arb_percent
+    # endret til bo_percent
+    values_from = bo_percent
+    ) |>
+  arrange(
+    fct(
+      bo_kom, levels = ordKom
+      )
+    ) |>
+  select(
+    #bo_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    # ag_comment: all_of() sparer arbeid
+    all_of(ordKom)
+    ) |>
+  rename(
+    "Bo kom.\\ Arb. kom" = bo_kom
+    ) |> 
+    flextable() |> 
+  # ag_comment: Forelår å bruke colformat_double() for å angi ønsket antall
+  # desimaler og suffix
+  colformat_double(digits = 2, suffix = "%") |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm")
+```
+
+@tbl-p2022_arb_percent_ag er en pendlematrise for dem som *bor* på Haugalandet og viser andelen som arbeider i de ulike kommunene. Tallene i pendlematrisen er fra 2022.
+
+```{r}
+#| label: tbl-p2022_bo_percent_ag
+#| tbl-cap: "Pendlematrise for Haugalandet år 2022 - Arbeidskommune og boprosent"
+# Pendlematrise for Haugalandet 2022 - Arbeidskommune og boprosent
+pmat_long |>
+  filter(
+    aar == "2022"
+    ) |>
+  select(
+    # ag_comment: endret til arb_percent
+    arb_kom, bo_kom, arb_percent
+  ) |>
+  pivot_wider(
+    names_from = bo_kom,
+    # ag_comment: endret til arb_percent
+    values_from = arb_percent
+  ) |>
+  arrange(
+    fct(
+      arb_kom, levels = c("arb_kom", ordKom[-1])
+      )
+    ) |>
+  select(
+    #arb_kom , Haugesund, Karmøy, Tysvær, Sveio, Bokn, Vindafjord, Sauda, Etne, Andre
+    all_of(c("arb_kom", ordKom[-1]))
+    ) |>
+  rename(
+    "Arb. kom.\\ Bo. kom" = arb_kom
+    ) |> 
+    flextable() |> 
+  colformat_double(digits = 2, suffix = "%") |> 
+  # a4 8.268 in - 1 in left margin - 1 in right margin = 6.268 in
+  fit_to_width(max_width = 6.268, inc = 1L, max_iter = 20, unit = "in") |> 
+  line_spacing(space = 0,
+              part = "body"
+              ) %>% 
+  hrule(rule = "exact")  %>% 
+  height_all(height = 5, part = "all", unit = "mm") |> 
+  padding(padding.top = 1, padding.bottom = 2, part = "all") %>% 
+  theme_booktabs()
+```
+
+
+
+@tbl-p2022_bo_percent_ag er en pendlematrise for dem som *arbeider* på Haugalandet og viser andelen som bor i de ulike kommunene.
+Tallene i pendlematrisen er fra 2022.
+
+
 
 ## Plots
 

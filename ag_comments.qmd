@@ -1,0 +1,48 @@
+---
+title: "ag comments"
+format: 
+  html: default
+  pdf: default
+editor: visual
+---
+
+-   Ignorer første merge request.
+    Jeg hadde problemer med sync av forked repo.
+
+-   Fjernet noen echo: false.
+    Det er bedre å angi disse i YAML header (sette echo: false for endelig rapport)
+
+-   Fjernet round() funksjonen fra beregningen av bo_percent og arb_percent.
+    Bedre å sette antall desimaler (digits) nå vi lager tabeller vha.
+    flextable.
+    Da kan vi for hver tabell bestemme hvor mange desimaler vi trenger.
+
+-   Se genereringen av p2000_arb_percent tabellen for hvordan colformat_double(digits = 3, suffix = "%") brukes for å angi at vi i denne tabellen øsnker 3 desimaler og vil ha et % tegn for å angi at det er prosenter vi rapporterer.
+
+-   Se bruk av `set_flextable_defaults()` for å spare litt skrivearbeid og sikre konsistente tabeller (samme formatering).
+
+-   Tabellene for andeler er feil.
+    Fortvil ikke ;-).
+    Det er forferdelig fort gjort å bli forvirret mht.
+    disse andelene.
+    Min anbefaling er å regne dem ut for hånd (fra pendle-tabellen) for et par kommuner og så sjekke tabellene mot disse for å se at en har fått tabellene riktige.
+
+-   Spørsmål vedrørende 2000.
+    Svar på spm.
+    3-7 er feil pga.
+    feil tabeller.
+
+-   Spørsmål vedrørende 2012.
+    Svar på spm.
+    7-10 er feil pga.
+    feil tabeller.
+
+-   Spørsmål vedrørende 2022.
+    Svar på spm.
+    7-8er feil pga.
+    feil tabeller.
+
+-   Har fikset tabellene også for 2012 og 2022.
+
+-   Flott arbeid bortsett fra andels-tabellene.
+    Godkjent.
